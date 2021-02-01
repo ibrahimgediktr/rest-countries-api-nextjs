@@ -1,65 +1,112 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Card from "../components/card";
+import unfetch from "isomorphic-unfetch";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import styled from "styled-components";
+import SearchInput from "../components/searchInput";
+import FilterSelect from "../components/filterSelect";
 
-export default function Home() {
+function Home({ countryList }) {
+  const [countries, setCountries] = useState(countryList);
+  const [searchCountry, setSearchCountry] = useState();
+  const [selectCountry, setSelectCountry] = useState();
+
+  useEffect(() => {
+    if (searchCountry) setCountries(resultsSearch);
+  }, [searchCountry]);
+
+  useEffect(() => {
+    if (selectCountry) setCountries(resultsSelect);
+  }, [selectCountry]);
+
+  const handleSearch = (search) => {
+    setSearchCountry(search);
+  };
+
+  const handleSelect = (select) => {
+    
+    if(select === 'All'){
+      setCountries(countryList);
+    } else {
+      setSelectCountry(select);
+    }
+  }
+
+  const resultsSearch = countryList.filter((country) =>
+    country.name.toLowerCase().includes(searchCountry)
+  );
+
+  const resultsSelect = countryList.filter((country) =>
+    country.region === selectCountry
+  );
+
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <HomeContainer>
+      <InputContainer>
+        <SearchInput 
+        handleSearch={handleSearch} />
+        <FilterSelect
+        handleSelect={handleSelect}
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
+        />
+      </InputContainer>
+      <CountriesGridContainer>
+        {countries.map((country, index) => (
+          <Link
+            href={{
+              pathname: "/cardDetail",
+              query: { name: country.name },
+            }}
+            key={index}
           >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+            <a>
+              <Card country={country} />
+            </a>
+          </Link>
+        ))}
+      </CountriesGridContainer>
+    </HomeContainer>
+  );
 }
+Home.getInitialProps = async (context) => {
+  const data = await unfetch(`https://restcountries.eu/rest/v2/all`);
+  const json = await data.json();
+
+  return {
+    countryList: json,
+  };
+};
+
+export default Home;
+
+const HomeContainer = styled.div`
+
+`;
+
+const CountriesGridContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 75px;
+  justify-items: center;
+  @media screen and (max-width: 1200px) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  @media screen and (max-width: 992px) {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media screen and (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const InputContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  @media screen and (max-width:992px){
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    margin-bottom:40px;
+  }
+`;
