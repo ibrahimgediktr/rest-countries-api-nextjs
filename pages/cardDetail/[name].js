@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import unfetch from "isomorphic-fetch";
+import unfetch from "isomorphic-unfetch";
 import styled from "styled-components";
 import { BiArrowBack } from "react-icons/bi";
 import Link from "next/link";

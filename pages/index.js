@@ -55,7 +55,7 @@ function Home({ countryList }) {
         {countries.map((country, index) => (
           <Link
             href={{
-              pathname: "/cardDetail",
+              pathname: "/cardDetail/[name]",
               query: { name: country.name },
             }}
             key={index}
