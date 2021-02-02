@@ -3,12 +3,14 @@ import unfetch from "isomorphic-unfetch";
 import styled from "styled-components";
 import { BiArrowBack } from "react-icons/bi";
 import Link from "next/link";
+import slug from "slug";
 
 function CardDetail({ countryDetail }) {
   const [country, setCountry] = useState(countryDetail);
   useEffect(() => {
     setCountry(countryDetail);
   }, []);
+
   return (
     <>
       <Link href="/">
@@ -66,9 +68,9 @@ function CardDetail({ countryDetail }) {
           <CountryBorders>
             <Bold>Border Countries: </Bold>
             <Borders>
-            {country.borders.map((border, index) => (
+              {country.borders.map((border, index) => (
                 <Span key={index}>{border}</Span>
-            ))}
+              ))}
             </Borders>
           </CountryBorders>
         </CardDetailBody>
@@ -77,39 +79,54 @@ function CardDetail({ countryDetail }) {
   );
 }
 
-CardDetail.getInitialProps = async (context) => {
+export async function getStaticPaths() {
+  const data = await unfetch("https://restcountries.eu/rest/v2/all");
+  const countryList = await data.json();
+
+  const paths = countryList.map((country) => {
+    return { params: { callingcode: `${country.callingCodes}` } };
+  });
+
+  return {
+    paths,
+    fallback: false,
+  };
+}
+
+export async function getStaticProps({ params }) {
   const data = await unfetch(
-    `https://restcountries.eu/rest/v2/name/${context.query.name}`
+    `https://restcountries.eu/rest/v2/callingcode/${params.callingcode}`
   );
+
   const json = await data.json();
 
   return {
-    countryDetail: json[0],
+    props: {
+      countryDetail: json[0],
+    },
   };
-};
+}
 
 export default CardDetail;
 
 const BackLink = styled.a`
-  cursor:pointer;
+  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width:135px;
-  height:40px;
-  box-shadow: 0px 0px 8px 0px ${(props) => props.theme.shadow};;
-  border-radius:5px;
-  margin-bottom:80px;
-  background:${(props) => props.theme.input};
+  max-width: 135px;
+  height: 40px;
+  box-shadow: 0px 0px 8px 0px ${(props) => props.theme.shadow};
+  border-radius: 5px;
+  margin-bottom: 80px;
+  background: ${(props) => props.theme.input};
 `;
 
-const ArrowBack = styled(BiArrowBack)`
-`;
+const ArrowBack = styled(BiArrowBack)``;
 
 const ArrowText = styled.span`
-margin-left:10px;
-
-`
+  margin-left: 10px;
+`;
 
 const CardDetailSection = styled.div`
   display: flex;
@@ -177,7 +194,7 @@ const Span = styled.span``;
 
 const NativeName = styled.div`
   ${Bold} {
-    color:${(props) => props.theme.text};;
+    color: ${(props) => props.theme.text};
   }
 `;
 const Population = styled.div``;
@@ -188,27 +205,26 @@ const TopLevelDomain = styled.div``;
 const Currencies = styled.div``;
 const Languages = styled.div``;
 
-const Borders = styled.div``
+const Borders = styled.div``;
 const CountryBorders = styled.div`
   display: flex;
   align-items: center;
   ${Span} {
     padding: 7px 13px;
-    box-shadow: 0px 0px 3px 0px ${(props) => props.theme.shadow};;
+    box-shadow: 0px 0px 3px 0px ${(props) => props.theme.shadow};
     margin-right: 10px;
     border-radius: 5px;
-    background:${(props) => props.theme.input};
+    background: ${(props) => props.theme.input};
   }
-  ${Borders}{
-    display:flex;
-    flex-wrap:wrap;
-    @media screen and ( max-width:768px){
-      margin-top:45px;
+  ${Borders} {
+    display: flex;
+    flex-wrap: wrap;
+    @media screen and (max-width: 768px) {
+      margin-top: 45px;
     }
   }
-  @media screen and (max-width:768px){
-    flex-direction:column;
-    align-items:flex-start;
-}
-
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import SearchInput from "../components/searchInput";
 import FilterSelect from "../components/filterSelect";
+import slug from 'slug'
 
 function Home({ countryList }) {
   const [countries, setCountries] = useState(countryList);
@@ -54,10 +55,8 @@ function Home({ countryList }) {
       <CountriesGridContainer>
         {countries.map((country, index) => (
           <Link
-            href={{
-              pathname: "/cardDetail/[name]",
-              query: { name: country.name },
-            }}
+            href="/country/[callingcode]"
+            as={`/country/${country.callingCodes}`}
             key={index}
           >
             <a>
@@ -69,12 +68,14 @@ function Home({ countryList }) {
     </HomeContainer>
   );
 }
-Home.getInitialProps = async (context) => {
-  const data = await unfetch(`https://restcountries.eu/rest/v2/all`);
-  const json = await data.json();
+export async function getStaticProps() {
+  const data = await unfetch("https://restcountries.eu/rest/v2/all");
+  const countryList = await data.json();
 
   return {
-    countryList: json,
+    props: {
+      countryList
+    }
   };
 };
 
