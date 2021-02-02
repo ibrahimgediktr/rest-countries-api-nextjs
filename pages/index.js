@@ -55,8 +55,8 @@ function Home({ countryList }) {
       <CountriesGridContainer>
         {countries.map((country, index) => (
           <Link
-            href="/country/[callingcode]"
-            as={`/country/${country.callingCodes}`}
+            href="/country/[alpha]"
+            as={`/country/${country.alpha3Code}`}
             key={index}
           >
             <a>

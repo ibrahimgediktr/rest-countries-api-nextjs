@@ -84,7 +84,7 @@ export async function getStaticPaths() {
   const countryList = await data.json();
 
   const paths = countryList.map((country) => {
-    return { params: { callingcode: `${country.callingCodes}` } };
+    return { params: { alpha: `${country.alpha3Code}` } };
   });
 
   return {
@@ -95,14 +95,14 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const data = await unfetch(
-    `https://restcountries.eu/rest/v2/callingcode/${params.callingcode}`
+    `https://restcountries.eu/rest/v2/alpha/${params.alpha}`
   );
 
   const json = await data.json();
 
   return {
     props: {
-      countryDetail: json[0],
+      countryDetail: json,
     },
   };
 }
