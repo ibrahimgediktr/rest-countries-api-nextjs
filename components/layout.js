@@ -3,25 +3,16 @@ import Header from "./header";
 import styled, { ThemeProvider } from "styled-components";
 import { lightTheme, darkTheme } from "./theme";
 
-
 function Layout({ children }) {
-  const [theme, setTheme] = useState({mode: 'light'});
-
-  useEffect(() => {
-    setTheme(localStorage.getItem('theme'))
-  }, []);
+  const [theme, setTheme] = useState("light");
 
 
   const themeToggler = () => {
-    const mode = (theme.mode === 'light' ? 'dark' : 'light')
-    // theme === "light" ? setTheme("dark") : setTheme("light");
-    localStorage.setItem("theme", mode);
-    setTheme({ mode: mode })
+    theme === "light" ? setTheme("dark") : setTheme("light")
   };
 
-
   return (
-    <ThemeProvider theme={theme.mode === "light" ? lightTheme : darkTheme}>
+    <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
       <LayoutSection>
         <Header theme={theme} themeToggler={themeToggler} />
         <Main> {children} </Main>
