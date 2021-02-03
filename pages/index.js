@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import SearchInput from "../components/searchInput";
 import FilterSelect from "../components/filterSelect";
-import slug from 'slug'
 
 function Home({ countryList }) {
   const [countries, setCountries] = useState(countryList);
